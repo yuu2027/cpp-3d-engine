@@ -1,0 +1,12 @@
+{
+  "version": "0.2.1",
+  "defaults": {},
+  "configurations": [
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "Cpp3DEngine.exe (Cpp3DEngine\\Cpp3DEngine.exe)",
+      "name": "Cpp3DEngine.exe (Cpp3DEngine\\Cpp3DEngine.exe)"
+    }
+  ]
+}
