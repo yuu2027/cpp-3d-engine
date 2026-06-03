@@ -102,7 +102,7 @@ C++で3Dゲームエンジンの基礎機能を自作し、最終的にそのエ
 | 項目 | 内容 |
 |---|---|
 | OS | Windows 10 / 11 |
-| IDE | Visual Studio 2022 |
+| IDE | Visual Studio 2026 |
 | コンパイラ | MSVC |
 | C++規格 | C++20 |
 | ビルド | CMake |
@@ -112,7 +112,7 @@ C++で3Dゲームエンジンの基礎機能を自作し、最終的にそのエ
 
 以下をインストールする。
 
-1. Visual Studio 2022
+1. Visual Studio 2026
    - ワークロード：`C++によるデスクトップ開発`
 2. Git
 3. CMake
@@ -375,7 +375,7 @@ Scene: ModelViewerScene
 
 #### 実装・作業内容
 
-- Visual Studio 2022を導入
+- Visual Studio 2026を導入
 - Gitを導入
 - CMakeを導入
 - vcpkgを導入
