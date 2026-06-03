@@ -1,16 +1,40 @@
-﻿# CMakeList.txt : 最上位の CMake プロジェクト ファイル。グローバル構成を行います
-# また、サブプロジェクトをここに含めます。
-#
-cmake_minimum_required (VERSION 3.10)
+﻿cmake_minimum_required (VERSION 3.25) # CMakeの最低バージョン
 
-# サポートされている場合は、MSVC コンパイラのホット リロードを有効にします。
-if (POLICY CMP0141)
-  cmake_policy(SET CMP0141 NEW)
-  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
-endif()
+# プロジェクト名をCpp3DEngineにする
+# LANGUAGES CXX:このプロジェクトではC++を使用
+project(Cpp3DEngine LANGUAGES CXX)
 
-project ("Cpp3DEngine")
-project ("test")
+set(CMAKE_CXX_STANDARD 20)          # 使用するC++の規格をC++20に設定
+set(CMAKE_CXX_STANDARD_REQUIRED ON) # 指定したC++規格を必須にする
 
-# サブプロジェクトを含めます。
-add_subdirectory ("Cpp3DEngine")
+# Cpp3DEngineという名前の実行ファイルを作る設定
+add_executable(Cpp3DEngine
+    src/main.cpp
+    src/Engine/Engine.cpp
+    src/Engine/Time.cpp
+    src/Platform/Window.cpp
+)
+
+# Cpp3DEngineのインクルードパスにsrcを追加
+# PRIVATE:このインクルード設定はCpp3DEngineの内部だけで使う
+target_include_directories(Cpp3DEngine PRIVATE src)
+
+# GLFWとOpenGLを探す
+# REQUIRED:GLFWが見つからなければエラーにする
+find_package(glfw3 CONFIG REQUIRED)
+find_package(OpenGL REQUIRED)
+
+# 自分のプログラムと外部ライブラリを結合する
+# C++コードでGLFWやOpenGLの関数を使う場合、コンパイルだけでなくリンクも必要
+target_link_libraries(Cpp3DEngine PRIVATE
+    glfw
+    OpenGL::GL
+)
+
+# Cpp3DEngineというターゲットに対して、追加のプロパティを設定
+# 実行ファイル .exeの出力場所を自分で整理
+# RUNTIME_OUTPUT_DIRECTORY:.exeなどの実行ファイルをどこに出力するかを決める設定
+# CMAKE_BINARY_DIR:CMakeのビルドディレクトリを表す
+set_target_properties(Cpp3DEngine PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
