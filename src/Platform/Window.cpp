@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
 // Windowオブジェクトが破棄されるときに自動で呼ばれる関数
@@ -24,6 +25,7 @@ bool Window::Create(const string& title, int width, int height) {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // OpenGLのプロファイルを指定。Core Profileを使うという意味
 
 	m_window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
+
 	if (m_window == nullptr) {
 		cerr << "Failed to create GLFW window.\n"; // 標準エラー出力
 		glfwTerminate();
@@ -33,11 +35,11 @@ bool Window::Create(const string& title, int width, int height) {
 	glfwMakeContextCurrent(m_window); // このウィンドウのOpenGLコンテキストを、現在のスレッドで使えるようにする
 	glfwSwapInterval(1);
 
-	glViewport(0, 0, width, height); // OpenGLの描画領域を設定
+	//glViewport(0, 0, width, height); // OpenGLの描画領域を設定
 
 	// ウィンドウの描画領域サイズが変わったときに呼ばれる関数を登録
 	// ウィンドウサイズが変わったら、OpenGLの描画範囲も新しいサイズに合わせる
-	glfwSetFramebufferSizeCallback(m_window, [](GLFWwindow*, int framebufferWidth, int framebufferHeight) { glViewport(0, 0, framebufferWidth, framebufferHeight);});
+	//glfwSetFramebufferSizeCallback(m_window, [](GLFWwindow*, int framebufferWidth, int framebufferHeight) { glViewport(0, 0, framebufferWidth, framebufferHeight);});
 	
 	return true;
 }

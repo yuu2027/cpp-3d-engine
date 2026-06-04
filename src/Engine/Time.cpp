@@ -11,6 +11,7 @@ void Time::Tick() {
 
 	m_lastTime = currentTime;
 	m_deltaTime = elapsed.count(); // 経過時間を
+	m_totalTime += m_deltaTime;
 
 	m_accumulatedTime += m_deltaTime;
 	++m_frameCount;
@@ -26,6 +27,10 @@ void Time::Tick() {
 
 double Time::GetDeltaTime() const {
 	return m_deltaTime;
+}
+
+double Time::GetTotalTime() const {
+	return m_totalTime;
 }
 
 double Time::GetFPS() const {

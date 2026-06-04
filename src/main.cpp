@@ -1,4 +1,5 @@
 #include  "Engine/Engine.h"
+#include "Rendering/Shader.h"
 
 int main() {
 	Engine engine;

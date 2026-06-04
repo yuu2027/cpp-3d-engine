@@ -13,21 +13,31 @@ add_executable(Cpp3DEngine
     src/Engine/Engine.cpp
     src/Engine/Time.cpp
     src/Platform/Window.cpp
+    src/Rendering/Shader.cpp
+    src/Rendering/VertexArray.cpp
+    src/Rendering/VertexBuffer.cpp
+    src/Rendering/Renderer.cpp
 )
 
 # Cpp3DEngineのインクルードパスにsrcを追加
 # PRIVATE:このインクルード設定はCpp3DEngineの内部だけで使う
 target_include_directories(Cpp3DEngine PRIVATE src)
 
+target_compile_definitions(Cpp3DEngine PRIVATE
+    CPP3D_ASSET_DIR="${CMAKE_SOURCE_DIR}/assets"
+)
+
 # GLFWとOpenGLを探す
 # REQUIRED:GLFWが見つからなければエラーにする
 find_package(glfw3 CONFIG REQUIRED)
+find_package(glad CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
 
 # 自分のプログラムと外部ライブラリを結合する
 # C++コードでGLFWやOpenGLの関数を使う場合、コンパイルだけでなくリンクも必要
 target_link_libraries(Cpp3DEngine PRIVATE
     glfw
+    glad::glad
     OpenGL::GL
 )
 
