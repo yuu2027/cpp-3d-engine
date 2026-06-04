@@ -56,7 +56,7 @@ bool Engine::InitializeOpenGL(int width, int height) {
 }
 
 bool Engine::InitializeDemoTriangle() {
-	if (!m_basicShader.LoadFromFiles(GetAssetPath("shaders/basic_color.vert"), GetAssetPath("shader/basic_color.frag"))) {
+	if (!m_basicShader.LoadFromFiles(GetAssetPath("shaders/basic_color.vert"), GetAssetPath("shaders/basic_color.frag"))) {
 		return false;
 	}
 

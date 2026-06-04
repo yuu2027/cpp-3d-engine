@@ -51,7 +51,7 @@ bool Shader::LoadFromFiles(const string& vertexPath, const string& fragmentPath)
 		return false;
 	}
 
-	return false;
+	return true;
 }
 
 void Shader::Use() const {
