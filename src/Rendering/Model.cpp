@@ -2,7 +2,7 @@
 
 #include "Rendering/Renderer.h"
 
-void Model::AddMesh(ModelMesh&& mesh) {
+void Model::AddMesh(std::unique_ptr<ModelMesh> mesh) {
     m_meshes.push_back(std::move(mesh));
 }
 
@@ -13,14 +13,14 @@ Texture2D* Model::AddTexture(std::unique_ptr<Texture2D> texture) {
 }
 
 void Model::Draw(const Camera& camera, const glm::mat4& model, float aspectRatio) const {
-    for (const ModelMesh& mesh : m_meshes) {
-        Renderer::DrawMesh(mesh.mesh, mesh.material, camera, model, aspectRatio);
+    for (const std::unique_ptr<ModelMesh>& mesh : m_meshes) {
+        Renderer::DrawMesh(mesh->mesh, mesh->material, camera, model, aspectRatio);
     }
 }
 
 void Model::Destroy() {
-    for (ModelMesh& mesh : m_meshes) {
-        mesh.mesh.Destroy();
+    for (std::unique_ptr<ModelMesh>& mesh : m_meshes) {
+        mesh->mesh.Destroy();
     }
 
     m_meshes.clear();

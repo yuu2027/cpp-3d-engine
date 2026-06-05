@@ -53,11 +53,15 @@ bool ModelLoader::LoadObj(const std::string& path, Model& model, Shader* shader,
             }
         }
 
-        ModelMesh modelMesh;
-        modelMesh.mesh.Create(vertices, indices);
-        modelMesh.material.SetShader(shader);
-        modelMesh.material.SetTexture(fallbackTexture);
-        modelMesh.material.SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+        auto modelMesh = std::make_unique<ModelMesh>();
+        if (!modelMesh->mesh.Create(vertices, indices)) {
+            std::cerr << "Failed to create model mesh: " << path << "\n";
+            return false;
+        }
+
+        modelMesh->material.SetShader(shader);
+        modelMesh->material.SetTexture(fallbackTexture);
+        modelMesh->material.SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
 
         model.AddMesh(std::move(modelMesh));
     }

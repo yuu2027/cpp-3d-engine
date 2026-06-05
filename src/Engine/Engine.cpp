@@ -69,7 +69,7 @@ bool Engine::InitializeDemoModel() {
 		return false;
 	}
 
-	if (!m_cubeTexture.LoadFromFile(GetAssetPath("textures/checker.png"))) {
+	if (!m_cubeTexture.LoadFromFile(GetAssetPath("textures/phase6_cube_uv_checker.png"))) {
 		return false;
 	}
 
