@@ -24,28 +24,71 @@ void DebugGui::Draw(
     double fps,
     double deltaTime,
     bool isCameraMouseActive,
-    glm::vec3& position,
-    glm::vec3& rotation,
-    glm::vec3& scale,
-    glm::vec4& materialColor,
+    const std::vector<DebugObjectControls>& objects,
     LightingSettings& lighting
 ) {
-    ImGui::Begin("Phase 7 Debug");
+    ImGui::Begin("Phase 7 Model Viewer");
 
     ImGui::Text("FPS: %.1f", fps);
     ImGui::Text("DeltaTime: %.4f", deltaTime);
     ImGui::Text("Mode: %s", isCameraMouseActive ? "Camera" : "GUI");
     ImGui::Text("Right mouse hold: Camera control");
 
-    ImGui::DragFloat3("Position", glm::value_ptr(position), 0.05f);
-    ImGui::DragFloat3("Rotation", glm::value_ptr(rotation), 1.0f);
-    ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.05f, 0.1f, 10.0f);
+    ImGui::Separator();
+    ImGui::TextUnformatted("Object");
 
-    ImGui::ColorEdit4("Material Color", glm::value_ptr(materialColor));
+    if (objects.empty()) {
+        ImGui::TextUnformatted("No editable objects.");
+    }
+    else {
+        if (m_selectedObjectIndex < 0 ||
+            m_selectedObjectIndex >= static_cast<int>(objects.size())) {
+            m_selectedObjectIndex = 0;
+        }
+
+        const char* currentName = objects[m_selectedObjectIndex].name;
+        if (currentName == nullptr) {
+            currentName = "Object";
+        }
+
+        if (ImGui::BeginCombo("Selected", currentName)) {
+            for (int i = 0; i < static_cast<int>(objects.size()); ++i) {
+                const char* objectName = objects[i].name != nullptr ? objects[i].name : "Object";
+                const bool isSelected = (m_selectedObjectIndex == i);
+
+                if (ImGui::Selectable(objectName, isSelected)) {
+                    m_selectedObjectIndex = i;
+                }
+                if (isSelected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+            ImGui::EndCombo();
+        }
+
+        const DebugObjectControls& selected = objects[m_selectedObjectIndex];
+
+        if (selected.position != nullptr) {
+            ImGui::DragFloat3("Position", glm::value_ptr(*selected.position), 0.05f);
+        }
+        if (selected.rotation != nullptr) {
+            ImGui::DragFloat3("Rotation", glm::value_ptr(*selected.rotation), 1.0f);
+        }
+        if (selected.scale != nullptr) {
+            ImGui::DragFloat3("Scale", glm::value_ptr(*selected.scale), 0.05f, 0.1f, 10.0f);
+        }
+        if (selected.materialColor != nullptr) {
+            ImGui::ColorEdit4("Material Color", glm::value_ptr(*selected.materialColor));
+        }
+    }
+
+    ImGui::Separator();
+    ImGui::TextUnformatted("Lighting");
 
     ImGui::DragFloat3("Light Direction", glm::value_ptr(lighting.directional.direction), 0.05f);
     ImGui::ColorEdit3("Light Color", glm::value_ptr(lighting.directional.color));
     ImGui::SliderFloat("Light Intensity", &lighting.directional.intensity, 0.0f, 3.0f);
+    ImGui::ColorEdit3("Ambient Color", glm::value_ptr(lighting.ambient.color));
     ImGui::SliderFloat("Ambient Intensity", &lighting.ambient.intensity, 0.0f, 1.0f);
 
     ImGui::End();

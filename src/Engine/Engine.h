@@ -23,10 +23,15 @@
 
 using namespace std;
 
-struct RenderObject {
+struct ModelViewerObject {
+	string name;
 	Mesh* mesh = nullptr;
+	Model* model = nullptr;
 	Material* material = nullptr;
-	glm::mat4 model = glm::mat4(1.0f);
+	glm::vec3 position = { 0.0f, 0.0f, 0.0f };
+	glm::vec3 rotation = { 0.0f, 0.0f, 0.0f };
+	glm::vec3 scale = { 1.0f, 1.0f, 1.0f };
+	glm::vec4 materialColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 };
 
 class Engine {
@@ -39,11 +44,15 @@ private:
 	bool InitializeOpenGL(int width, int height);
 	bool InitializeDemoTriangle();
 	bool InitializeDemoCube();
-	bool InitializeDemoModel();
+	bool InitializeModelViewer();
+	bool CreateGroundPlaneMesh();
+	bool CreateCubeMesh();
 
 	void ProcessInput();
 	void Update();
 	void Render();
+	void DrawModelViewerObject(ModelViewerObject& object, float aspectRatio);
+	glm::mat4 BuildTransform(const ModelViewerObject& object) const;
 
 	unique_ptr<Window> m_window;
 	Time m_time;
@@ -66,24 +75,20 @@ private:
 
 	Shader m_textureShader;
 	Texture2D m_cubeTexture;
+	Texture2D m_groundTexture;
+	Texture2D m_modelTexture;
 
+	Mesh m_groundMesh;
 	Mesh m_cubeMesh;
-	Material m_redMaterial;
-	Material m_greenMaterial;
-	Material m_blueMaterial;
-	std::vector<RenderObject> m_renderObjects;
+	Material m_groundMaterial;
+	Material m_cubeMaterial;
+	std::vector<ModelViewerObject> m_modelViewerObjects;
 
 	Model m_demoModel;
 	ModelLoader m_modelLoader;
-	glm::mat4 m_demoModelTransform = glm::mat4(1.0f);
 
 	DebugGui m_debugGui;
 	LightingSettings m_lighting;
-
-	glm::vec3 m_demoPosition = { 0.0f, 0.0f, -2.5f };
-	glm::vec3 m_demoRotation = { 0.0f, 0.0f, 0.0f };
-	glm::vec3 m_demoScale = { 1.5f, 1.5f, 1.5f };
-	glm::vec4 m_demoMaterialColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 	bool m_isCameraMouseActive = false;
 };

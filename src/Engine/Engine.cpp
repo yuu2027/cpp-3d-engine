@@ -36,7 +36,7 @@ bool Engine::Initialize(const string& title, int width, int height) {
 		return false;
 	}
 
-	if (!InitializeDemoModel()) {
+	if (!InitializeModelViewer()) {
 		return false;
 	}
 
@@ -66,14 +66,30 @@ bool Engine::InitializeOpenGL(int width, int height) {
 	return true;
 }
 
-bool Engine::InitializeDemoModel() {
+bool Engine::InitializeModelViewer() {
 	if (!m_textureShader.LoadFromFiles(
 		GetAssetPath("shaders/lit_textured.vert"),
 		GetAssetPath("shaders/lit_textured.frag"))) {
 		return false;
 	}
 
-	if (!m_cubeTexture.LoadFromFile(GetAssetPath("textures/checker.png"))) {
+	if (!m_groundTexture.LoadFromFile(GetAssetPath("textures/stone_tiles_albedo_512.png"))) {
+		return false;
+	}
+
+	if (!m_cubeTexture.LoadFromFile(GetAssetPath("textures/phase6_cube_uv_checker.png"))) {
+		return false;
+	}
+
+	if (!m_modelTexture.LoadFromFile(GetAssetPath("textures/metal_panel_albedo_512.png"))) {
+		return false;
+	}
+
+	if (!CreateGroundPlaneMesh()) {
+		return false;
+	}
+
+	if (!CreateCubeMesh()) {
 		return false;
 	}
 
@@ -81,15 +97,113 @@ bool Engine::InitializeDemoModel() {
 		GetAssetPath("models/phase6_unit_cube.obj"),
 		m_demoModel,
 		&m_textureShader,
-		&m_cubeTexture)) {
+		&m_modelTexture)) {
 		return false;
 	}
 
-	m_demoModelTransform =
-		glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -2.5f)) *
-		glm::scale(glm::mat4(1.0f), glm::vec3(1.5f));
+	m_groundMaterial.SetShader(&m_textureShader);
+	m_groundMaterial.SetTexture(&m_groundTexture);
+	m_groundMaterial.SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+
+	m_cubeMaterial.SetShader(&m_textureShader);
+	m_cubeMaterial.SetTexture(&m_cubeTexture);
+	m_cubeMaterial.SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+
+	m_modelViewerObjects = {
+		{
+			"Ground Plane",
+			&m_groundMesh,
+			nullptr,
+			&m_groundMaterial,
+			{ 0.0f, -1.0f, -3.0f },
+			{ 0.0f, 0.0f, 0.0f },
+			{ 1.0f, 1.0f, 1.0f },
+			{ 0.9f, 0.9f, 0.9f, 1.0f }
+		},
+		{
+			"Textured Cube",
+			&m_cubeMesh,
+			nullptr,
+			&m_cubeMaterial,
+			{ -1.75f, 0.0f, -3.0f },
+			{ 0.0f, 25.0f, 0.0f },
+			{ 1.0f, 1.0f, 1.0f },
+			{ 1.0f, 1.0f, 1.0f, 1.0f }
+		},
+		{
+			"OBJ Model",
+			nullptr,
+			&m_demoModel,
+			nullptr,
+			{ 1.75f, 0.0f, -3.0f },
+			{ 0.0f, -25.0f, 0.0f },
+			{ 1.25f, 1.25f, 1.25f },
+			{ 1.0f, 1.0f, 1.0f, 1.0f }
+		}
+	};
 
 	return true;
+}
+
+bool Engine::CreateGroundPlaneMesh() {
+	const std::vector<Vertex> vertices = {
+		{{ -5.0f, 0.0f, -5.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f }},
+		{{  5.0f, 0.0f, -5.0f }, { 0.0f, 1.0f, 0.0f }, { 4.0f, 0.0f }},
+		{{  5.0f, 0.0f,  5.0f }, { 0.0f, 1.0f, 0.0f }, { 4.0f, 4.0f }},
+		{{ -5.0f, 0.0f,  5.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 4.0f }},
+	};
+
+	const std::vector<unsigned int> indices = {
+		0, 1, 2,
+		2, 3, 0,
+	};
+
+	return m_groundMesh.Create(vertices, indices);
+}
+
+bool Engine::CreateCubeMesh() {
+	const std::vector<Vertex> vertices = {
+		{{ -0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f }},
+		{{  0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f }},
+		{{  0.5f,  0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
+		{{ -0.5f,  0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }},
+
+		{{  0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 0.0f }},
+		{{ -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f, -1.0f }, { 1.0f, 0.0f }},
+		{{ -0.5f,  0.5f, -0.5f }, { 0.0f, 0.0f, -1.0f }, { 1.0f, 1.0f }},
+		{{  0.5f,  0.5f, -0.5f }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 1.0f }},
+
+		{{ -0.5f, -0.5f, -0.5f }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }},
+		{{ -0.5f, -0.5f,  0.5f }, { -1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f }},
+		{{ -0.5f,  0.5f,  0.5f }, { -1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }},
+		{{ -0.5f,  0.5f, -0.5f }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }},
+
+		{{  0.5f, -0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }},
+		{{  0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f }},
+		{{  0.5f,  0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }},
+		{{  0.5f,  0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }},
+
+		{{ -0.5f,  0.5f,  0.5f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f }},
+		{{  0.5f,  0.5f,  0.5f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f }},
+		{{  0.5f,  0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }},
+		{{ -0.5f,  0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 1.0f }},
+
+		{{ -0.5f, -0.5f, -0.5f }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 0.0f }},
+		{{  0.5f, -0.5f, -0.5f }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 0.0f }},
+		{{  0.5f, -0.5f,  0.5f }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 1.0f }},
+		{{ -0.5f, -0.5f,  0.5f }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 1.0f }},
+	};
+
+	const std::vector<unsigned int> indices = {
+		 0,  1,  2,  2,  3,  0,
+		 4,  5,  6,  6,  7,  4,
+		 8,  9, 10, 10, 11,  8,
+		12, 13, 14, 14, 15, 12,
+		16, 17, 18, 18, 19, 16,
+		20, 21, 22, 22, 23, 20,
+	};
+
+	return m_cubeMesh.Create(vertices, indices);
 }
 
 bool Engine::InitializeDemoTriangle() {
@@ -212,10 +326,13 @@ void Engine::Run() {
 
 void Engine::Shutdown() {
 	m_debugGui.Shutdown();
-	m_renderObjects.clear();
+	m_modelViewerObjects.clear();
 
+	m_groundMesh.Destroy();
 	m_cubeMesh.Destroy();
+	m_groundTexture.Destroy();
 	m_cubeTexture.Destroy();
+	m_modelTexture.Destroy();
 	m_textureShader.Destroy();
 	m_demoModel.Destroy();
 
@@ -302,23 +419,52 @@ void Engine::Render() {
 	const float aspectRatio =
 		static_cast<float>(framebufferWidth) / static_cast<float>(framebufferHeight);
 
-	glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_demoPosition);
-	transform = glm::rotate(transform, glm::radians(m_demoRotation.x), glm::vec3(1, 0, 0));
-	transform = glm::rotate(transform, glm::radians(m_demoRotation.y), glm::vec3(0, 1, 0));
-	transform = glm::rotate(transform, glm::radians(m_demoRotation.z), glm::vec3(0, 0, 1));
-	transform = glm::scale(transform, m_demoScale);
+	for (ModelViewerObject& object : m_modelViewerObjects) {
+		DrawModelViewerObject(object, aspectRatio);
+	}
 
-	m_demoModel.SetMaterialColor(m_demoMaterialColor);
-	m_demoModel.Draw(m_camera, transform, aspectRatio, m_lighting);
+	std::vector<DebugObjectControls> debugObjects;
+	debugObjects.reserve(m_modelViewerObjects.size());
+
+	for (ModelViewerObject& object : m_modelViewerObjects) {
+		debugObjects.push_back({
+			object.name.c_str(),
+			&object.position,
+			&object.rotation,
+			&object.scale,
+			&object.materialColor
+		});
+	}
 
 	m_debugGui.Draw(
 		m_time.GetFPS(),
 		m_time.GetDeltaTime(),
 		m_isCameraMouseActive,
-		m_demoPosition,
-		m_demoRotation,
-		m_demoScale,
-		m_demoMaterialColor,
+		debugObjects,
 		m_lighting
 	);
+}
+
+void Engine::DrawModelViewerObject(ModelViewerObject& object, float aspectRatio) {
+	const glm::mat4 transform = BuildTransform(object);
+
+	if (object.mesh != nullptr && object.material != nullptr) {
+		object.material->SetColor(object.materialColor);
+		Renderer::DrawMesh(*object.mesh, *object.material, m_camera, transform, aspectRatio, m_lighting);
+	}
+
+	if (object.model != nullptr) {
+		object.model->SetMaterialColor(object.materialColor);
+		object.model->Draw(m_camera, transform, aspectRatio, m_lighting);
+	}
+}
+
+glm::mat4 Engine::BuildTransform(const ModelViewerObject& object) const {
+	glm::mat4 transform = glm::translate(glm::mat4(1.0f), object.position);
+	transform = glm::rotate(transform, glm::radians(object.rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+	transform = glm::rotate(transform, glm::radians(object.rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+	transform = glm::rotate(transform, glm::radians(object.rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+	transform = glm::scale(transform, object.scale);
+
+	return transform;
 }
