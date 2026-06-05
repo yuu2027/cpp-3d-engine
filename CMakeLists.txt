@@ -17,6 +17,8 @@ add_executable(Cpp3DEngine
     src/Rendering/VertexArray.cpp
     src/Rendering/VertexBuffer.cpp
     src/Rendering/Renderer.cpp
+    src/Rendering/IndexBuffer.cpp
+    src/Rendering/Camera.cpp
 )
 
 # Cpp3DEngineのインクルードパスにsrcを追加
@@ -32,6 +34,7 @@ target_compile_definitions(Cpp3DEngine PRIVATE
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(glm CONFIG REQUIRED)
 
 # 自分のプログラムと外部ライブラリを結合する
 # C++コードでGLFWやOpenGLの関数を使う場合、コンパイルだけでなくリンクも必要
@@ -39,6 +42,7 @@ target_link_libraries(Cpp3DEngine PRIVATE
     glfw
     glad::glad
     OpenGL::GL
+    glm::glm
 )
 
 # Cpp3DEngineというターゲットに対して、追加のプロパティを設定

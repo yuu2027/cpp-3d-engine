@@ -5,6 +5,7 @@
 #include <sstream>
 
 #include <glad/glad.h>
+#include <glm/gtc/type_ptr.hpp>
 
 Shader::~Shader() {
 	Destroy();
@@ -67,6 +68,17 @@ void Shader::SetFloat4(const string& name, float x, float y, float z, float w) c
 	}
 
 	glUniform4f(location, x, y, z, w);
+}
+
+void Shader::SetMat4(const string& name, const glm::mat4& value) const {
+	const int location = glGetUniformLocation(m_programId, name.c_str());
+
+	if (location == -1) {
+		cerr << "Uniform not found: " << name << "\n";
+		return;
+	}
+
+	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 }
 
 void Shader::Destroy() {
