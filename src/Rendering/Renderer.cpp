@@ -1,6 +1,10 @@
 #include "Rendering/Renderer.h"
 #include "Rendering/VertexArray.h"
 #include "Rendering/IndexBuffer.h"
+#include "Rendering/Mesh.h"
+#include "Rendering/Material.h"
+#include "Rendering/Camera.h"
+#include "Rendering/Shader.h"
 
 #include <glad/glad.h>
 
@@ -34,4 +38,25 @@ void Renderer::DrawIndexed(const VertexArray& vertexArray, const IndexBuffer& in
     vertexArray.Bind();
     indexBuffer.Bind();
     glDrawElements(GL_TRIANGLES, indexBuffer.GetCount(), GL_UNSIGNED_INT, nullptr);
+}
+
+void Renderer::DrawMesh(
+    const Mesh& mesh,
+    const Material& material,
+    const Camera& camera,
+    const glm::mat4& model,
+    float aspectRatio
+) {
+    material.Apply();
+
+    Shader* shader = material.GetShader();
+    if (shader == nullptr) {
+        return;
+    }
+
+    shader->SetMat4("uModel", model);
+    shader->SetMat4("uView", camera.GetViewMatrix());
+    shader->SetMat4("uProjection", camera.GetProjectionMatrix(aspectRatio));
+
+    mesh.Draw();
 }

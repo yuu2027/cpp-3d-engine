@@ -1,9 +1,14 @@
 #pragma once
 
+#include <glm/mat4x4.hpp>
+
 using namespace std;
 
 class VertexArray;
 class IndexBuffer;
+class Mesh;
+class Material;
+class Camera;
 
 class Renderer {
 public:
@@ -13,4 +18,5 @@ public:
     static void Clear();
     static void DrawArrays(const VertexArray& vertexArray, int vertexCount);
     static void DrawIndexed(const VertexArray& vertexArray, const IndexBuffer& indexBuffer);
+    static void DrawMesh(const Mesh& mesh, const Material& material, const Camera& camera, const glm::mat4& model, float aspectRatio);
 };

@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "Engine/Time.h"
 #include "Platform/Window.h"
@@ -11,8 +12,18 @@
 #include "Rendering/Camera.h"
 #include "Rendering/IndexBuffer.h"
 #include "Rendering/Texture2D.h"
+#include "Rendering/Mesh.h"
+#include "Rendering/Material.h"
+
+#include <glm/mat4x4.hpp>
 
 using namespace std;
+
+struct RenderObject {
+	Mesh* mesh = nullptr;
+	Material* material = nullptr;
+	glm::mat4 model = glm::mat4(1.0f);
+};
 
 class Engine {
 public:
@@ -50,4 +61,10 @@ private:
 
 	Shader m_textureShader;
 	Texture2D m_cubeTexture;
+
+	Mesh m_cubeMesh;
+	Material m_redMaterial;
+	Material m_greenMaterial;
+	Material m_blueMaterial;
+	std::vector<RenderObject> m_renderObjects;
 };

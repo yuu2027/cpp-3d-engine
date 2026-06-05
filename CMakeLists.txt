@@ -20,6 +20,9 @@ add_executable(Cpp3DEngine
     src/Rendering/IndexBuffer.cpp
     src/Rendering/Camera.cpp
     src/Rendering/Texture2D.cpp
+    src/Rendering/Mesh.cpp
+    src/Rendering/Material.cpp
+
 )
 
 # Cpp3DEngineのインクルードパスにsrcを追加

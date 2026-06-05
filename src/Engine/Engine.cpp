@@ -1,14 +1,15 @@
 #include "Engine/Engine.h"
 
-#include <cmath>
+#include <array>
 # include <iostream>
 #include <string>
-#include <iterator>
+#include <vector>
 
 #define GLFW_INCLUDE_NONE
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "Rendering/Renderer.h"
 
@@ -96,45 +97,39 @@ bool Engine::InitializeDemoCube() {
 		return false;
 	}
 
-	const float vertices[] = {
-		// Front
-		-0.5f, -0.5f,  0.5f, 0.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f, 1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f, 1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f, 0.0f, 1.0f,
+	const std::vector<Vertex> vertices = {
+		{{-0.5f, -0.5f,  0.5f}, {0.0f, 0.0f}},
+		{{ 0.5f, -0.5f,  0.5f}, {1.0f, 0.0f}},
+		{{ 0.5f,  0.5f,  0.5f}, {1.0f, 1.0f}},
+		{{-0.5f,  0.5f,  0.5f}, {0.0f, 1.0f}},
 
-		// Back
-		 0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f, 0.0f, 1.0f,
+		{{ 0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}},
+		{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f}},
+		{{-0.5f,  0.5f, -0.5f}, {1.0f, 1.0f}},
+		{{ 0.5f,  0.5f, -0.5f}, {0.0f, 1.0f}},
 
-		 // Left
-		 -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-		 -0.5f, -0.5f,  0.5f, 1.0f, 0.0f,
-		 -0.5f,  0.5f,  0.5f, 1.0f, 1.0f,
-		 -0.5f,  0.5f, -0.5f, 0.0f, 1.0f,
+		{{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}},
+		{{-0.5f, -0.5f,  0.5f}, {1.0f, 0.0f}},
+		{{-0.5f,  0.5f,  0.5f}, {1.0f, 1.0f}},
+		{{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f}},
 
-		 // Right
-		  0.5f, -0.5f,  0.5f, 0.0f, 0.0f,
-		  0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-		  0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
-		  0.5f,  0.5f,  0.5f, 0.0f, 1.0f,
+		{{ 0.5f, -0.5f,  0.5f}, {0.0f, 0.0f}},
+		{{ 0.5f, -0.5f, -0.5f}, {1.0f, 0.0f}},
+		{{ 0.5f,  0.5f, -0.5f}, {1.0f, 1.0f}},
+		{{ 0.5f,  0.5f,  0.5f}, {0.0f, 1.0f}},
 
-		  // Top
-		  -0.5f,  0.5f,  0.5f, 0.0f, 0.0f,
-		   0.5f,  0.5f,  0.5f, 1.0f, 0.0f,
-		   0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
-		  -0.5f,  0.5f, -0.5f, 0.0f, 1.0f,
+		{{-0.5f,  0.5f,  0.5f}, {0.0f, 0.0f}},
+		{{ 0.5f,  0.5f,  0.5f}, {1.0f, 0.0f}},
+		{{ 0.5f,  0.5f, -0.5f}, {1.0f, 1.0f}},
+		{{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f}},
 
-		  // Bottom
-		  -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-		   0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-		   0.5f, -0.5f,  0.5f, 1.0f, 1.0f,
-		  -0.5f, -0.5f,  0.5f, 0.0f, 1.0f,
+		{{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}},
+		{{ 0.5f, -0.5f, -0.5f}, {1.0f, 0.0f}},
+		{{ 0.5f, -0.5f,  0.5f}, {1.0f, 1.0f}},
+		{{-0.5f, -0.5f,  0.5f}, {0.0f, 1.0f}},
 	};
 
-	const unsigned int indices[] = {
+	const std::vector<unsigned int> indices = {
 		 0,  1,  2,  2,  3,  0,
 		 4,  5,  6,  6,  7,  4,
 		 8,  9, 10, 10, 11,  8,
@@ -143,24 +138,27 @@ bool Engine::InitializeDemoCube() {
 		20, 21, 22, 22, 23, 20,
 	};
 
-	m_cubeVertexArray.Create();
-	m_cubeVertexArray.Bind();
+	if (!m_cubeMesh.Create(vertices, indices)) {
+		return false;
+	}
 
-	m_cubeVertexBuffer.Create(vertices, sizeof(vertices));
+	m_redMaterial.SetShader(&m_textureShader);
+	m_redMaterial.SetTexture(&m_cubeTexture);
+	m_redMaterial.SetColor({ 1.0f, 0.55f, 0.55f, 1.0f });
 
-	const int stride = 5 * sizeof(float);
-	m_cubeVertexArray.SetFloatAttribute(0, 3, stride, nullptr);
-	m_cubeVertexArray.SetFloatAttribute(
-		1,
-		2,
-		stride,
-		reinterpret_cast<const void*>(3 * sizeof(float))
-	);
+	m_greenMaterial.SetShader(&m_textureShader);
+	m_greenMaterial.SetTexture(&m_cubeTexture);
+	m_greenMaterial.SetColor({ 0.55f, 1.0f, 0.55f, 1.0f });
 
-	m_cubeIndexBuffer.Create(indices, std::size(indices));
+	m_blueMaterial.SetShader(&m_textureShader);
+	m_blueMaterial.SetTexture(&m_cubeTexture);
+	m_blueMaterial.SetColor({ 0.55f, 0.65f, 1.0f, 1.0f });
 
-	VertexBuffer::Unbind();
-	VertexArray::Unbind();
+	m_renderObjects = {
+		{ &m_cubeMesh, &m_redMaterial, glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 0.0f, 0.0f)) },
+		{ &m_cubeMesh, &m_greenMaterial, glm::mat4(1.0f) },
+		{ &m_cubeMesh, &m_blueMaterial, glm::translate(glm::mat4(1.0f), glm::vec3(1.5f, 0.0f, 0.0f)) },
+	};
 
 	return true;
 }
@@ -183,10 +181,10 @@ void Engine::Run() {
 }
 
 void Engine::Shutdown() {
+	m_renderObjects.clear();
+
+	m_cubeMesh.Destroy();
 	m_cubeTexture.Destroy();
-	m_cubeIndexBuffer.Destroy();
-	m_cubeVertexBuffer.Destroy();
-	m_cubeVertexArray.Destroy();
 	m_textureShader.Destroy();
 
 	m_window.reset();
@@ -255,16 +253,17 @@ void Engine::Render() {
 	const float aspectRatio =
 		static_cast<float>(framebufferWidth) / static_cast<float>(framebufferHeight);
 
-	const glm::mat4 model = glm::mat4(1.0f);
-	const glm::mat4 view = m_camera.GetViewMatrix();
-	const glm::mat4 projection = m_camera.GetProjectionMatrix(aspectRatio);
+	for (const RenderObject& object : m_renderObjects) {
+		if (object.mesh == nullptr || object.material == nullptr) {
+			continue;
+		}
 
-	m_textureShader.Use();
-	m_textureShader.SetMat4("uModel", model);
-	m_textureShader.SetMat4("uView", view);
-	m_textureShader.SetMat4("uProjection", projection);
-	m_textureShader.SetInt("uTexture", 0);
-
-	m_cubeTexture.Bind(0);
-	Renderer::DrawIndexed(m_cubeVertexArray, m_cubeIndexBuffer);
+		Renderer::DrawMesh(
+			*object.mesh,
+			*object.material,
+			m_camera,
+			object.model,
+			aspectRatio
+		);
+	}
 }
