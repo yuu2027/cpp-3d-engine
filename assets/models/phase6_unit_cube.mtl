@@ -1,0 +1,8 @@
+# Material for Cpp3DEngine Phase 6 unit cube
+
+newmtl cube_checker
+Ka 0.100000 0.100000 0.100000
+Kd 1.000000 1.000000 1.000000
+Ks 0.200000 0.200000 0.200000
+Ns 32.000000
+map_Kd ../textures/phase6_cube_uv_checker.png

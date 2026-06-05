@@ -9,6 +9,8 @@
 *.lo
 *.o
 *.obj
+!assets/models/
+!assets/models/**/*.obj
 
 # Precompiled Headers
 *.gch

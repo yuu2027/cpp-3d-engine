@@ -11,7 +11,8 @@ bool Mesh::Create(const std::vector<Vertex>& vertices, const std::vector<unsigne
     m_vertexBuffer.Create(vertices.data(), vertices.size() * sizeof(Vertex));
 
     m_vertexArray.SetFloatAttribute(0, 3, sizeof(Vertex), reinterpret_cast<const void*>(offsetof(Vertex, position)));
-    m_vertexArray.SetFloatAttribute(1, 2, sizeof(Vertex), reinterpret_cast<const void*>(offsetof(Vertex, texCoord)));
+    m_vertexArray.SetFloatAttribute(1, 3, sizeof(Vertex), reinterpret_cast<const void*>(offsetof(Vertex, normal)));
+    m_vertexArray.SetFloatAttribute(2, 2, sizeof(Vertex), reinterpret_cast<const void*>(offsetof(Vertex, texCoord)));
 
     m_indexBuffer.Create(indices.data(), indices.size());
 

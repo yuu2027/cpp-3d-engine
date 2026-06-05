@@ -14,6 +14,8 @@
 #include "Rendering/Texture2D.h"
 #include "Rendering/Mesh.h"
 #include "Rendering/Material.h"
+#include "Rendering/Model.h"
+#include "Rendering/ModelLoader.h"
 
 #include <glm/mat4x4.hpp>
 
@@ -35,6 +37,7 @@ private:
 	bool InitializeOpenGL(int width, int height);
 	bool InitializeDemoTriangle();
 	bool InitializeDemoCube();
+	bool InitializeDemoModel();
 
 	void ProcessInput();
 	void Update();
@@ -67,4 +70,8 @@ private:
 	Material m_greenMaterial;
 	Material m_blueMaterial;
 	std::vector<RenderObject> m_renderObjects;
+
+	Model m_demoModel;
+	ModelLoader m_modelLoader;
+	glm::mat4 m_demoModelTransform = glm::mat4(1.0f);
 };

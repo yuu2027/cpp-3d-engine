@@ -10,6 +10,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/mat4x4.hpp>
 
 #include "Rendering/Renderer.h"
 
@@ -35,7 +36,7 @@ bool Engine::Initialize(const string& title, int width, int height) {
 		return false;
 	}
 
-	if (!InitializeDemoCube()) {
+	if (!InitializeDemoModel()) {
 		return false;
 	}
 
@@ -58,6 +59,32 @@ bool Engine::InitializeOpenGL(int width, int height) {
 
 	glfwSetFramebufferSizeCallback(m_window->GetNativeHandle(), [](GLFWwindow*, int framebufferWidth, int framebufferHeight) {Renderer::SetViewport(0, 0, framebufferWidth, framebufferHeight); });
 	
+	return true;
+}
+
+bool Engine::InitializeDemoModel() {
+	if (!m_textureShader.LoadFromFiles(
+		GetAssetPath("shaders/textured_cube.vert"),
+		GetAssetPath("shaders/textured_cube.frag"))) {
+		return false;
+	}
+
+	if (!m_cubeTexture.LoadFromFile(GetAssetPath("textures/checker.png"))) {
+		return false;
+	}
+
+	if (!m_modelLoader.LoadObj(
+		GetAssetPath("models/phase6_unit_cube.obj"),
+		m_demoModel,
+		&m_textureShader,
+		&m_cubeTexture)) {
+		return false;
+	}
+
+	m_demoModelTransform =
+		glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -2.5f)) *
+		glm::scale(glm::mat4(1.0f), glm::vec3(1.5f));
+
 	return true;
 }
 
@@ -86,82 +113,82 @@ bool Engine::InitializeDemoTriangle() {
 	return true;
 }
 
-bool Engine::InitializeDemoCube() {
-	if (!m_textureShader.LoadFromFiles(
-		GetAssetPath("shaders/textured_cube.vert"),
-		GetAssetPath("shaders/textured_cube.frag"))) {
-		return false;
-	}
-
-	if (!m_cubeTexture.LoadFromFile(GetAssetPath("textures/checker.png"))) {
-		return false;
-	}
-
-	const std::vector<Vertex> vertices = {
-		{{-0.5f, -0.5f,  0.5f}, {0.0f, 0.0f}},
-		{{ 0.5f, -0.5f,  0.5f}, {1.0f, 0.0f}},
-		{{ 0.5f,  0.5f,  0.5f}, {1.0f, 1.0f}},
-		{{-0.5f,  0.5f,  0.5f}, {0.0f, 1.0f}},
-
-		{{ 0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}},
-		{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f}},
-		{{-0.5f,  0.5f, -0.5f}, {1.0f, 1.0f}},
-		{{ 0.5f,  0.5f, -0.5f}, {0.0f, 1.0f}},
-
-		{{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}},
-		{{-0.5f, -0.5f,  0.5f}, {1.0f, 0.0f}},
-		{{-0.5f,  0.5f,  0.5f}, {1.0f, 1.0f}},
-		{{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f}},
-
-		{{ 0.5f, -0.5f,  0.5f}, {0.0f, 0.0f}},
-		{{ 0.5f, -0.5f, -0.5f}, {1.0f, 0.0f}},
-		{{ 0.5f,  0.5f, -0.5f}, {1.0f, 1.0f}},
-		{{ 0.5f,  0.5f,  0.5f}, {0.0f, 1.0f}},
-
-		{{-0.5f,  0.5f,  0.5f}, {0.0f, 0.0f}},
-		{{ 0.5f,  0.5f,  0.5f}, {1.0f, 0.0f}},
-		{{ 0.5f,  0.5f, -0.5f}, {1.0f, 1.0f}},
-		{{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f}},
-
-		{{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}},
-		{{ 0.5f, -0.5f, -0.5f}, {1.0f, 0.0f}},
-		{{ 0.5f, -0.5f,  0.5f}, {1.0f, 1.0f}},
-		{{-0.5f, -0.5f,  0.5f}, {0.0f, 1.0f}},
-	};
-
-	const std::vector<unsigned int> indices = {
-		 0,  1,  2,  2,  3,  0,
-		 4,  5,  6,  6,  7,  4,
-		 8,  9, 10, 10, 11,  8,
-		12, 13, 14, 14, 15, 12,
-		16, 17, 18, 18, 19, 16,
-		20, 21, 22, 22, 23, 20,
-	};
-
-	if (!m_cubeMesh.Create(vertices, indices)) {
-		return false;
-	}
-
-	m_redMaterial.SetShader(&m_textureShader);
-	m_redMaterial.SetTexture(&m_cubeTexture);
-	m_redMaterial.SetColor({ 1.0f, 0.55f, 0.55f, 1.0f });
-
-	m_greenMaterial.SetShader(&m_textureShader);
-	m_greenMaterial.SetTexture(&m_cubeTexture);
-	m_greenMaterial.SetColor({ 0.55f, 1.0f, 0.55f, 1.0f });
-
-	m_blueMaterial.SetShader(&m_textureShader);
-	m_blueMaterial.SetTexture(&m_cubeTexture);
-	m_blueMaterial.SetColor({ 0.55f, 0.65f, 1.0f, 1.0f });
-
-	m_renderObjects = {
-		{ &m_cubeMesh, &m_redMaterial, glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 0.0f, 0.0f)) },
-		{ &m_cubeMesh, &m_greenMaterial, glm::mat4(1.0f) },
-		{ &m_cubeMesh, &m_blueMaterial, glm::translate(glm::mat4(1.0f), glm::vec3(1.5f, 0.0f, 0.0f)) },
-	};
-
-	return true;
-}
+//bool Engine::InitializeDemoCube() {
+//	if (!m_textureShader.LoadFromFiles(
+//		GetAssetPath("shaders/textured_cube.vert"),
+//		GetAssetPath("shaders/textured_cube.frag"))) {
+//		return false;
+//	}
+//
+//	if (!m_cubeTexture.LoadFromFile(GetAssetPath("textures/checker.png"))) {
+//		return false;
+//	}
+//
+//	const std::vector<Vertex> vertices = {
+//		{{-0.5f, -0.5f,  0.5f}, {0.0f, 0.0f}},
+//		{{ 0.5f, -0.5f,  0.5f}, {1.0f, 0.0f}},
+//		{{ 0.5f,  0.5f,  0.5f}, {1.0f, 1.0f}},
+//		{{-0.5f,  0.5f,  0.5f}, {0.0f, 1.0f}},
+//
+//		{{ 0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}},
+//		{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f}},
+//		{{-0.5f,  0.5f, -0.5f}, {1.0f, 1.0f}},
+//		{{ 0.5f,  0.5f, -0.5f}, {0.0f, 1.0f}},
+//
+//		{{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}},
+//		{{-0.5f, -0.5f,  0.5f}, {1.0f, 0.0f}},
+//		{{-0.5f,  0.5f,  0.5f}, {1.0f, 1.0f}},
+//		{{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f}},
+//
+//		{{ 0.5f, -0.5f,  0.5f}, {0.0f, 0.0f}},
+//		{{ 0.5f, -0.5f, -0.5f}, {1.0f, 0.0f}},
+//		{{ 0.5f,  0.5f, -0.5f}, {1.0f, 1.0f}},
+//		{{ 0.5f,  0.5f,  0.5f}, {0.0f, 1.0f}},
+//
+//		{{-0.5f,  0.5f,  0.5f}, {0.0f, 0.0f}},
+//		{{ 0.5f,  0.5f,  0.5f}, {1.0f, 0.0f}},
+//		{{ 0.5f,  0.5f, -0.5f}, {1.0f, 1.0f}},
+//		{{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f}},
+//
+//		{{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}},
+//		{{ 0.5f, -0.5f, -0.5f}, {1.0f, 0.0f}},
+//		{{ 0.5f, -0.5f,  0.5f}, {1.0f, 1.0f}},
+//		{{-0.5f, -0.5f,  0.5f}, {0.0f, 1.0f}},
+//	};
+//
+//	const std::vector<unsigned int> indices = {
+//		 0,  1,  2,  2,  3,  0,
+//		 4,  5,  6,  6,  7,  4,
+//		 8,  9, 10, 10, 11,  8,
+//		12, 13, 14, 14, 15, 12,
+//		16, 17, 18, 18, 19, 16,
+//		20, 21, 22, 22, 23, 20,
+//	};
+//
+//	if (!m_cubeMesh.Create(vertices, indices)) {
+//		return false;
+//	}
+//
+//	m_redMaterial.SetShader(&m_textureShader);
+//	m_redMaterial.SetTexture(&m_cubeTexture);
+//	m_redMaterial.SetColor({ 1.0f, 0.55f, 0.55f, 1.0f });
+//
+//	m_greenMaterial.SetShader(&m_textureShader);
+//	m_greenMaterial.SetTexture(&m_cubeTexture);
+//	m_greenMaterial.SetColor({ 0.55f, 1.0f, 0.55f, 1.0f });
+//
+//	m_blueMaterial.SetShader(&m_textureShader);
+//	m_blueMaterial.SetTexture(&m_cubeTexture);
+//	m_blueMaterial.SetColor({ 0.55f, 0.65f, 1.0f, 1.0f });
+//
+//	m_renderObjects = {
+//		{ &m_cubeMesh, &m_redMaterial, glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 0.0f, 0.0f)) },
+//		{ &m_cubeMesh, &m_greenMaterial, glm::mat4(1.0f) },
+//		{ &m_cubeMesh, &m_blueMaterial, glm::translate(glm::mat4(1.0f), glm::vec3(1.5f, 0.0f, 0.0f)) },
+//	};
+//
+//	return true;
+//}
 
 void Engine::Run() {
 	while (m_isRunning && !m_window->ShouldClose()) {
@@ -186,6 +213,7 @@ void Engine::Shutdown() {
 	m_cubeMesh.Destroy();
 	m_cubeTexture.Destroy();
 	m_textureShader.Destroy();
+	m_demoModel.Destroy();
 
 	m_window.reset();
 	glfwTerminate(); // GLFWの終了
@@ -266,4 +294,6 @@ void Engine::Render() {
 			aspectRatio
 		);
 	}
+
+	m_demoModel.Draw(m_camera, m_demoModelTransform, aspectRatio);
 }

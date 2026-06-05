@@ -22,7 +22,8 @@ add_executable(Cpp3DEngine
     src/Rendering/Texture2D.cpp
     src/Rendering/Mesh.cpp
     src/Rendering/Material.cpp
-
+    src/Rendering/Model.cpp
+    src/Rendering/ModelLoader.cpp
 )
 
 # Cpp3DEngineのインクルードパスにsrcを追加
@@ -43,6 +44,7 @@ find_package(glad CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(Stb REQUIRED)
+find_package(assimp CONFIG REQUIRED)
 
 # 自分のプログラムと外部ライブラリを結合する
 # C++コードでGLFWやOpenGLの関数を使う場合、コンパイルだけでなくリンクも必要
@@ -51,6 +53,7 @@ target_link_libraries(Cpp3DEngine PRIVATE
     glad::glad
     OpenGL::GL
     glm::glm
+    assimp::assimp
 )
 
 # Cpp3DEngineというターゲットに対して、追加のプロパティを設定
