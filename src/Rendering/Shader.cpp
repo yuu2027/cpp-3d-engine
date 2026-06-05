@@ -55,6 +55,17 @@ bool Shader::LoadFromFiles(const string& vertexPath, const string& fragmentPath)
 	return true;
 }
 
+void Shader::SetInt(const string& name, int value) const {
+	const int location = glGetUniformLocation(m_programId, name.c_str());
+
+	if (location == -1) {
+		cerr << "Uniform not found: " << name << "\n";
+		return;
+	}
+
+	glUniform1i(location, value);
+}
+
 void Shader::Use() const {
 	glUseProgram(m_programId);
 }

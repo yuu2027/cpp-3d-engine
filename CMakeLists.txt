@@ -19,11 +19,15 @@ add_executable(Cpp3DEngine
     src/Rendering/Renderer.cpp
     src/Rendering/IndexBuffer.cpp
     src/Rendering/Camera.cpp
+    src/Rendering/Texture2D.cpp
 )
 
 # Cpp3DEngineのインクルードパスにsrcを追加
 # PRIVATE:このインクルード設定はCpp3DEngineの内部だけで使う
-target_include_directories(Cpp3DEngine PRIVATE src)
+target_include_directories(Cpp3DEngine PRIVATE 
+    src
+    ${Stb_INCLUDE_DIR}
+)
 
 target_compile_definitions(Cpp3DEngine PRIVATE
     CPP3D_ASSET_DIR="${CMAKE_SOURCE_DIR}/assets"
@@ -35,6 +39,7 @@ find_package(glfw3 CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(glm CONFIG REQUIRED)
+find_package(Stb REQUIRED)
 
 # 自分のプログラムと外部ライブラリを結合する
 # C++コードでGLFWやOpenGLの関数を使う場合、コンパイルだけでなくリンクも必要

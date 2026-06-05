@@ -4,7 +4,7 @@
 int main() {
 	Engine engine;
 
-	if (!engine.Initialize("Cpp3DEngine - Phase 3", 1280, 720)) {
+	if (!engine.Initialize("Cpp3DEngine - Phase 4", 1280, 720)) {
 		return 1; // エラー終了
 	}
 

@@ -86,38 +86,76 @@ bool Engine::InitializeDemoTriangle() {
 }
 
 bool Engine::InitializeDemoCube() {
-	if (!m_basicShader.LoadFromFiles(
-		GetAssetPath("shaders/basic_color.vert"),
-		GetAssetPath("shaders/basic_color.frag"))) {
+	if (!m_textureShader.LoadFromFiles(
+		GetAssetPath("shaders/textured_cube.vert"),
+		GetAssetPath("shaders/textured_cube.frag"))) {
+		return false;
+	}
+
+	if (!m_cubeTexture.LoadFromFile(GetAssetPath("textures/checker.png"))) {
 		return false;
 	}
 
 	const float vertices[] = {
-		-0.5f, -0.5f, -0.5f,
-		 0.5f, -0.5f, -0.5f,
-		 0.5f,  0.5f, -0.5f,
-		-0.5f,  0.5f, -0.5f,
+		// Front
+		-0.5f, -0.5f,  0.5f, 0.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f, 1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f, 1.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f, 0.0f, 1.0f,
 
-		-0.5f, -0.5f,  0.5f,
-		 0.5f, -0.5f,  0.5f,
-		 0.5f,  0.5f,  0.5f,
-		-0.5f,  0.5f,  0.5f,
+		// Back
+		 0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f, 0.0f, 1.0f,
+
+		 // Left
+		 -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+		 -0.5f, -0.5f,  0.5f, 1.0f, 0.0f,
+		 -0.5f,  0.5f,  0.5f, 1.0f, 1.0f,
+		 -0.5f,  0.5f, -0.5f, 0.0f, 1.0f,
+
+		 // Right
+		  0.5f, -0.5f,  0.5f, 0.0f, 0.0f,
+		  0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+		  0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
+		  0.5f,  0.5f,  0.5f, 0.0f, 1.0f,
+
+		  // Top
+		  -0.5f,  0.5f,  0.5f, 0.0f, 0.0f,
+		   0.5f,  0.5f,  0.5f, 1.0f, 0.0f,
+		   0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
+		  -0.5f,  0.5f, -0.5f, 0.0f, 1.0f,
+
+		  // Bottom
+		  -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+		   0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+		   0.5f, -0.5f,  0.5f, 1.0f, 1.0f,
+		  -0.5f, -0.5f,  0.5f, 0.0f, 1.0f,
 	};
 
 	const unsigned int indices[] = {
-		0, 1, 2, 2, 3, 0,
-		4, 5, 6, 6, 7, 4,
-		4, 7, 3, 3, 0, 4,
-		1, 5, 6, 6, 2, 1,
-		3, 2, 6, 6, 7, 3,
-		4, 5, 1, 1, 0, 4,
+		 0,  1,  2,  2,  3,  0,
+		 4,  5,  6,  6,  7,  4,
+		 8,  9, 10, 10, 11,  8,
+		12, 13, 14, 14, 15, 12,
+		16, 17, 18, 18, 19, 16,
+		20, 21, 22, 22, 23, 20,
 	};
 
 	m_cubeVertexArray.Create();
 	m_cubeVertexArray.Bind();
 
 	m_cubeVertexBuffer.Create(vertices, sizeof(vertices));
-	m_cubeVertexArray.SetFloatAttribute(0, 3, 3 * sizeof(float), nullptr);
+
+	const int stride = 5 * sizeof(float);
+	m_cubeVertexArray.SetFloatAttribute(0, 3, stride, nullptr);
+	m_cubeVertexArray.SetFloatAttribute(
+		1,
+		2,
+		stride,
+		reinterpret_cast<const void*>(3 * sizeof(float))
+	);
 
 	m_cubeIndexBuffer.Create(indices, std::size(indices));
 
@@ -145,10 +183,11 @@ void Engine::Run() {
 }
 
 void Engine::Shutdown() {
+	m_cubeTexture.Destroy();
 	m_cubeIndexBuffer.Destroy();
 	m_cubeVertexBuffer.Destroy();
 	m_cubeVertexArray.Destroy();
-	m_basicShader.Destroy();
+	m_textureShader.Destroy();
 
 	m_window.reset();
 	glfwTerminate(); // GLFWの終了
@@ -205,11 +244,6 @@ void Engine::Update() {
 void Engine::Render() {
 	Renderer::Clear();
 
-	const float time = static_cast<float>(m_time.GetTotalTime());
-	const float red = (std::sin(time) + 1.0f) * 0.5f;
-	const float green = (std::sin(time + 2.0f) + 1.0f) * 0.5f;
-	const float blue = (std::sin(time + 4.0f) + 1.0f) * 0.5f;
-
 	int framebufferWidth = 1;
 	int framebufferHeight = 1;
 	glfwGetFramebufferSize(m_window->GetNativeHandle(), &framebufferWidth, &framebufferHeight);
@@ -225,11 +259,12 @@ void Engine::Render() {
 	const glm::mat4 view = m_camera.GetViewMatrix();
 	const glm::mat4 projection = m_camera.GetProjectionMatrix(aspectRatio);
 
-	m_basicShader.Use();
-	m_basicShader.SetMat4("uModel", model);
-	m_basicShader.SetMat4("uView", view);
-	m_basicShader.SetMat4("uProjection", projection);
-	m_basicShader.SetFloat4("uColor", red, green, blue, 1.0f);
+	m_textureShader.Use();
+	m_textureShader.SetMat4("uModel", model);
+	m_textureShader.SetMat4("uView", view);
+	m_textureShader.SetMat4("uProjection", projection);
+	m_textureShader.SetInt("uTexture", 0);
 
+	m_cubeTexture.Bind(0);
 	Renderer::DrawIndexed(m_cubeVertexArray, m_cubeIndexBuffer);
 }

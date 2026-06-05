@@ -10,6 +10,7 @@
 #include "Rendering/VertexBuffer.h"
 #include "Rendering/Camera.h"
 #include "Rendering/IndexBuffer.h"
+#include "Rendering/Texture2D.h"
 
 using namespace std;
 
@@ -46,4 +47,7 @@ private:
 	bool m_isFirstMouseMove = true;
 	double m_lastMouseX = 0.0;
 	double m_lastMouseY = 0.0;
+
+	Shader m_textureShader;
+	Texture2D m_cubeTexture;
 };
