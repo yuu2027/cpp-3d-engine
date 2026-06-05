@@ -8,6 +8,7 @@
 #include "Rendering/Material.h"
 #include "Rendering/Mesh.h"
 #include "Rendering/Texture2D.h"
+#include "Rendering/Light.h"
 
 class Camera;
 
@@ -21,7 +22,8 @@ public:
     void AddMesh(std::unique_ptr<ModelMesh> mesh);
     Texture2D* AddTexture(std::unique_ptr<Texture2D> texture);
 
-    void Draw(const Camera& camera, const glm::mat4& model, float aspectRatio) const;
+    void Draw(const Camera& camera, const glm::mat4& model, float aspectRatio, const LightingSettings& lighting) const;
+    void SetMaterialColor(const glm::vec4& color);
     void Destroy();
 
 private:

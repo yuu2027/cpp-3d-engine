@@ -16,6 +16,8 @@
 #include "Rendering/Material.h"
 #include "Rendering/Model.h"
 #include "Rendering/ModelLoader.h"
+#include "Rendering/Light.h"
+#include "Debug/DebugGui.h"
 
 #include <glm/mat4x4.hpp>
 
@@ -74,4 +76,14 @@ private:
 	Model m_demoModel;
 	ModelLoader m_modelLoader;
 	glm::mat4 m_demoModelTransform = glm::mat4(1.0f);
+
+	DebugGui m_debugGui;
+	LightingSettings m_lighting;
+
+	glm::vec3 m_demoPosition = { 0.0f, 0.0f, -2.5f };
+	glm::vec3 m_demoRotation = { 0.0f, 0.0f, 0.0f };
+	glm::vec3 m_demoScale = { 1.5f, 1.5f, 1.5f };
+	glm::vec4 m_demoMaterialColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+	bool m_isCameraMouseActive = false;
 };

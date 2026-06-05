@@ -13,6 +13,7 @@ public:
 
     Shader* GetShader() const;
     void Apply() const;
+    const glm::vec4& GetColor() const;
 
 private:
     Shader* m_shader = nullptr;

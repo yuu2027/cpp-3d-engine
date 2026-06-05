@@ -2,6 +2,8 @@
 
 #include <glm/mat4x4.hpp>
 
+#include "Rendering/Light.h"
+
 using namespace std;
 
 class VertexArray;
@@ -18,5 +20,5 @@ public:
     static void Clear();
     static void DrawArrays(const VertexArray& vertexArray, int vertexCount);
     static void DrawIndexed(const VertexArray& vertexArray, const IndexBuffer& indexBuffer);
-    static void DrawMesh(const Mesh& mesh, const Material& material, const Camera& camera, const glm::mat4& model, float aspectRatio);
+    static void DrawMesh(const Mesh& mesh, const Material& material, const Camera& camera, const glm::mat4& model, float aspectRatio, const LightingSettings& lighting);
 };

@@ -92,6 +92,24 @@ void Shader::SetMat4(const string& name, const glm::mat4& value) const {
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 }
 
+void Shader::SetFloat(const string& name, float value) const {
+	const int location = glGetUniformLocation(m_programId, name.c_str());
+	if (location == -1) {
+		cerr << "Uniform not found: " << name << "\n";
+		return;
+	}
+	glUniform1f(location, value);
+}
+
+void Shader::SetVec3(const string& name, const glm::vec3& value) const {
+	const int location = glGetUniformLocation(m_programId, name.c_str());
+	if (location == -1) {
+		cerr << "Uniform not found: " << name << "\n";
+		return;
+	}
+	glUniform3f(location, value.x, value.y, value.z);
+}
+
 void Shader::Destroy() {
 	if (m_programId != 0) {
 		glDeleteProgram(m_programId);

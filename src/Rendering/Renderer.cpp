@@ -45,7 +45,8 @@ void Renderer::DrawMesh(
     const Material& material,
     const Camera& camera,
     const glm::mat4& model,
-    float aspectRatio
+    float aspectRatio,
+    const LightingSettings& lighting
 ) {
     material.Apply();
 
@@ -57,6 +58,12 @@ void Renderer::DrawMesh(
     shader->SetMat4("uModel", model);
     shader->SetMat4("uView", camera.GetViewMatrix());
     shader->SetMat4("uProjection", camera.GetProjectionMatrix(aspectRatio));
+
+    shader->SetVec3("uLightDirection", glm::normalize(lighting.directional.direction));
+    shader->SetVec3("uLightColor", lighting.directional.color);
+    shader->SetFloat("uLightIntensity", lighting.directional.intensity);
+    shader->SetVec3("uAmbientColor", lighting.ambient.color);
+    shader->SetFloat("uAmbientIntensity", lighting.ambient.intensity);
 
     mesh.Draw();
 }

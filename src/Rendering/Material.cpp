@@ -32,3 +32,7 @@ void Material::Apply() const {
         m_shader->SetInt("uTexture", 0);
     }
 }
+
+const glm::vec4& Material::GetColor() const {
+    return m_color;
+}

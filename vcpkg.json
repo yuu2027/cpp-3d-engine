@@ -1,5 +1,15 @@
 {
   "name": "cpp-3d-engine",
   "version-string": "0.1.0",
-  "dependencies": [ "glfw3", "glad", "glm","stb", "assimp" ]
+  "dependencies": [
+    "glfw3",
+    "glad",
+    "glm",
+    "stb",
+    "assimp",
+    {
+      "name": "imgui",
+      "features": [ "glfw-binding", "opengl3-binding" ]
+    }
+  ]
 }

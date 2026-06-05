@@ -43,7 +43,11 @@ bool Engine::Initialize(const string& title, int width, int height) {
 	Renderer::SetClearColor(0.02f, 0.02f, 0.025f, 1.0f);
 	Renderer::EnableDepthTest(true);
 
-	glfwSetInputMode(m_window->GetNativeHandle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	if (!m_debugGui.Initialize(m_window->GetNativeHandle())) {
+		return false;
+	}
+
+	glfwSetInputMode(m_window->GetNativeHandle(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	m_isRunning = true;
 
 	return true;
@@ -64,12 +68,12 @@ bool Engine::InitializeOpenGL(int width, int height) {
 
 bool Engine::InitializeDemoModel() {
 	if (!m_textureShader.LoadFromFiles(
-		GetAssetPath("shaders/textured_cube.vert"),
-		GetAssetPath("shaders/textured_cube.frag"))) {
+		GetAssetPath("shaders/lit_textured.vert"),
+		GetAssetPath("shaders/lit_textured.frag"))) {
 		return false;
 	}
 
-	if (!m_cubeTexture.LoadFromFile(GetAssetPath("textures/phase6_cube_uv_checker.png"))) {
+	if (!m_cubeTexture.LoadFromFile(GetAssetPath("textures/checker.png"))) {
 		return false;
 	}
 
@@ -192,22 +196,22 @@ bool Engine::InitializeDemoTriangle() {
 
 void Engine::Run() {
 	while (m_isRunning && !m_window->ShouldClose()) {
+		glfwPollEvents();
 		m_time.Tick();
+
+		m_debugGui.BeginFrame();
 
 		ProcessInput();
 		Update();
 		Render();
 
+		m_debugGui.EndFrame();
 		m_window->SwapBuffers(); // バックバッファーをフロントバッファーに変更
-		glfwPollEvents();
-
-		if (m_time.ConsumeOneSecondTick()) {
-			cout << "FPS: " << m_time.GetFPS() << " | DeltaTime: " << m_time.GetDeltaTime() << "s\n";
-		}
 	}
 }
 
 void Engine::Shutdown() {
+	m_debugGui.Shutdown();
 	m_renderObjects.clear();
 
 	m_cubeMesh.Destroy();
@@ -227,6 +231,23 @@ void Engine::ProcessInput() {
 	// 指定したキーが押されているかを調べる
 	if (glfwGetKey(nativeWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		m_window->SetShouldClose(true); // ウィンドウを閉じるべきというフラグを出す
+	}
+
+	const bool shouldUseCameraMouse =
+		glfwGetMouseButton(nativeWindow, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
+
+	if (shouldUseCameraMouse != m_isCameraMouseActive) {
+		m_isCameraMouseActive = shouldUseCameraMouse;
+		glfwSetInputMode(
+			nativeWindow,
+			GLFW_CURSOR,
+			m_isCameraMouseActive ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL
+		);
+		m_isFirstMouseMove = true;
+	}
+
+	if (!m_isCameraMouseActive) {
+		return;
 	}
 
 	const float deltaTime = static_cast<float>(m_time.GetDeltaTime());
@@ -281,19 +302,23 @@ void Engine::Render() {
 	const float aspectRatio =
 		static_cast<float>(framebufferWidth) / static_cast<float>(framebufferHeight);
 
-	for (const RenderObject& object : m_renderObjects) {
-		if (object.mesh == nullptr || object.material == nullptr) {
-			continue;
-		}
+	glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_demoPosition);
+	transform = glm::rotate(transform, glm::radians(m_demoRotation.x), glm::vec3(1, 0, 0));
+	transform = glm::rotate(transform, glm::radians(m_demoRotation.y), glm::vec3(0, 1, 0));
+	transform = glm::rotate(transform, glm::radians(m_demoRotation.z), glm::vec3(0, 0, 1));
+	transform = glm::scale(transform, m_demoScale);
 
-		Renderer::DrawMesh(
-			*object.mesh,
-			*object.material,
-			m_camera,
-			object.model,
-			aspectRatio
-		);
-	}
+	m_demoModel.SetMaterialColor(m_demoMaterialColor);
+	m_demoModel.Draw(m_camera, transform, aspectRatio, m_lighting);
 
-	m_demoModel.Draw(m_camera, m_demoModelTransform, aspectRatio);
+	m_debugGui.Draw(
+		m_time.GetFPS(),
+		m_time.GetDeltaTime(),
+		m_isCameraMouseActive,
+		m_demoPosition,
+		m_demoRotation,
+		m_demoScale,
+		m_demoMaterialColor,
+		m_lighting
+	);
 }

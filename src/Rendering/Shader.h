@@ -19,6 +19,8 @@ public:
     void Use() const;
     void SetFloat4(const string& name, float x, float y, float z, float w) const;
     void SetMat4(const string& name, const glm::mat4& value) const;
+    void SetFloat(const string& name, float value) const;
+    void SetVec3(const string& name, const glm::vec3& value) const;
     void Destroy();
 
 private:

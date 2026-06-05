@@ -24,6 +24,7 @@ add_executable(Cpp3DEngine
     src/Rendering/Material.cpp
     src/Rendering/Model.cpp
     src/Rendering/ModelLoader.cpp
+    src/Debug/DebugGui.cpp
 )
 
 # Cpp3DEngineのインクルードパスにsrcを追加
@@ -37,6 +38,10 @@ target_compile_definitions(Cpp3DEngine PRIVATE
     CPP3D_ASSET_DIR="${CMAKE_SOURCE_DIR}/assets"
 )
 
+target_compile_options(Cpp3DEngine PRIVATE
+    $<$<CXX_COMPILER_ID:MSVC>:/utf-8>
+)
+
 # GLFWとOpenGLを探す
 # REQUIRED:GLFWが見つからなければエラーにする
 find_package(glfw3 CONFIG REQUIRED)
@@ -45,6 +50,7 @@ find_package(OpenGL REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(Stb REQUIRED)
 find_package(assimp CONFIG REQUIRED)
+find_package(imgui CONFIG REQUIRED)
 
 # 自分のプログラムと外部ライブラリを結合する
 # C++コードでGLFWやOpenGLの関数を使う場合、コンパイルだけでなくリンクも必要
@@ -54,6 +60,7 @@ target_link_libraries(Cpp3DEngine PRIVATE
     OpenGL::GL
     glm::glm
     assimp::assimp
+    imgui::imgui
 )
 
 # Cpp3DEngineというターゲットに対して、追加のプロパティを設定
